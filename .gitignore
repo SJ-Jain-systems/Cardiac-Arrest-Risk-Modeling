@@ -4,3 +4,6 @@ reports/figures/eda_*.png
 # Generated baseline model figures are created by notebooks/03_baseline_logistic_regression.ipynb.
 # Do not commit binary plot outputs; regenerate them by running the notebook.
 reports/figures/baseline_logistic_regression_*.png
+# Generated model artifacts are created by notebooks/05_predictive_modeling.ipynb.
+# Do not commit binary model outputs; regenerate them by running the notebook.
+models/*.joblib
