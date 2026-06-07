@@ -1,0 +1,25 @@
+model,predictor,predictor_label,term,comparison,n_obs,events,non_events,coefficient,std_error,odds_ratio,ci_lower,ci_upper,p_value
+Unadjusted: Age,Age,Age,Age,per 1-year increase,5906,5053,853,-0.051788,0.003136,0.94953,0.943711,0.955384,2.9477016574557668e-61
+Unadjusted: SBP,SBP,Systolic blood pressure,SBP,per 1 mmHg increase,5906,5053,853,0.032386,0.00198,1.032916,1.028915,1.036932,3.848598573588023e-60
+Unadjusted: HR,HR,Heart rate,HR,per 1 bpm increase,5906,5053,853,-0.076137,0.002773,0.926689,0.921667,0.931739,5.363893875640347e-166
+Unadjusted: RR,RR,Respiratory rate,RR,per 1 breath/min increase,5906,5053,853,-0.134032,0.007058,0.874562,0.862546,0.886745,2.1109275148074157e-80
+Unadjusted: SpO2,SpO2,Oxygen saturation,SpO2,per 1 percentage-point increase,5906,5053,853,0.408793,0.019647,1.504999,1.448147,1.564083,3.75356299109811e-96
+Unadjusted: GCS,GCS,Glasgow Coma Scale,GCS,per 1-point increase,5906,5053,853,-0.024675,0.003555,0.975627,0.968853,0.982448,3.875284744163188e-12
+Unadjusted: Gender,Gender,Gender,C(Gender)[T.1],level 1 vs reference,5906,5053,853,-0.013301,0.081484,0.986787,0.841133,1.157663,0.870331386863892
+Unadjusted: TriageScore,TriageScore,Triage score,C(TriageScore)[T.2.0],level 2.0 vs reference,4003,3633,370,-3.58466,1.004315,0.027746,0.003875,0.198644,0.00035799139849580823
+Unadjusted: TriageScore,TriageScore,Triage score,C(TriageScore)[T.3.0],level 3.0 vs reference,4003,3633,370,-1.655719,1.014344,0.190955,0.026153,1.394252,0.10261513871106552
+Unadjusted: Alcoholic,Alcoholic,Alcohol history,C(Alcoholic)[T.1.0],level 1.0 vs reference,4155,3785,370,0.710475,0.141967,2.034958,1.540682,2.687805,5.600300300349767e-07
+Unadjusted: Smoke,Smoke,Smoking history,C(Smoke)[T.1.0],level 1.0 vs reference,4154,3784,370,0.606954,0.123595,1.834833,1.4401,2.337764,9.068843737765938e-07
+Unadjusted: FHCD,FHCD,Family history of cardiac disease,C(FHCD)[T.1.0],level 1.0 vs reference,4285,3952,333,2.675147,0.308475,14.514486,7.929169,26.569028,4.239190106008241e-18
+Adjusted clinical model,Gender,Gender,C(Gender)[T.1],level 1 vs reference,3352,3019,333,-0.221883,0.242267,0.801009,0.498218,1.28782,0.35973847326106
+Adjusted clinical model,TriageScore,Triage score,C(TriageScore)[T.2.0],level 2.0 vs reference,3352,3019,333,-2.462209,1.031028,0.085246,0.0113,0.643116,0.01693528055025062
+Adjusted clinical model,TriageScore,Triage score,C(TriageScore)[T.3.0],level 3.0 vs reference,3352,3019,333,-0.342786,1.050848,0.70979,0.0905,5.566894,0.7442731674414774
+Adjusted clinical model,Alcoholic,Alcohol history,C(Alcoholic)[T.1.0],level 1.0 vs reference,3352,3019,333,-0.402899,0.249825,0.66838,0.409611,1.090623,0.10680447749861824
+Adjusted clinical model,Smoke,Smoking history,C(Smoke)[T.1.0],level 1.0 vs reference,3352,3019,333,0.081583,0.231196,1.085004,0.689662,1.70697,0.724182926127821
+Adjusted clinical model,FHCD,Family history of cardiac disease,C(FHCD)[T.1.0],level 1.0 vs reference,3352,3019,333,3.272417,0.413213,26.375001,11.7345,59.281659,2.3859200052205717e-15
+Adjusted clinical model,Age,Age,Age,per 1-year increase,3352,3019,333,-0.030015,0.007148,0.970431,0.956929,0.984122,2.6812606348981272e-05
+Adjusted clinical model,SBP,Systolic blood pressure,SBP,per 1 mmHg increase,3352,3019,333,0.042785,0.005101,1.043713,1.03333,1.054201,4.987512407119852e-17
+Adjusted clinical model,HR,Heart rate,HR,per 1 bpm increase,3352,3019,333,-0.094607,0.006375,0.90973,0.898435,0.921168,7.911865736998413e-50
+Adjusted clinical model,RR,Respiratory rate,RR,per 1 breath/min increase,3352,3019,333,-0.09052,0.013889,0.913456,0.888926,0.938663,7.147004192732173e-11
+Adjusted clinical model,SpO2,Oxygen saturation,SpO2,per 1 percentage-point increase,3352,3019,333,0.13145,0.026165,1.140481,1.083468,1.200495,5.065316044804716e-07
+Adjusted clinical model,GCS,Glasgow Coma Scale,GCS,per 1-point increase,3352,3019,333,-0.00329,0.010078,0.996716,0.977222,1.016598,0.7440815210400129
