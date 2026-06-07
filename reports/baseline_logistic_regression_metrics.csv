@@ -1,0 +1,2 @@
+split_strategy,train_rows,test_rows,train_unique_ids,test_unique_ids,overlapping_train_test_ids,positive_class,auroc,auprc,accuracy,sensitivity_recall,specificity,precision_ppv,npv,f1_score,true_negative,false_positive,false_negative,true_positive
+StratifiedGroupKFold by patient ID,4746,1160,90,22,0,1,0.8579016996729589,0.9788372188412866,0.821551724137931,0.8983218163869694,0.2925170068027211,0.8974358974358975,0.2945205479452055,0.8978786383818451,43,104,103,910
