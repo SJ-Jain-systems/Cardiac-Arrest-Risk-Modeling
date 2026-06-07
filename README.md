@@ -176,6 +176,10 @@ The primary model artifact is:
 
 `models/*.joblib` files are intentionally ignored by Git. Recreate the final model artifact by running `notebooks/05_predictive_modeling.ipynb`; downstream evaluation and interpretability notebooks load this artifact when it is available.
 
+## License
+
+This project is free to use, copy, modify, and distribute as long as appropriate credit is given to the original author. See the [LICENSE](LICENSE) file for details.
+
 ## Important clinical and ethical limitations
 
 - This project is for retrospective analysis and model-development demonstration only; it is not a validated medical device or bedside decision-support tool.
