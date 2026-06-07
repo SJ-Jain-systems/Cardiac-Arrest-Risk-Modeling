@@ -8,3 +8,4 @@ statsmodels
 shap
 joblib
 jupyter
+pytest
