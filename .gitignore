@@ -7,3 +7,6 @@ reports/figures/baseline_logistic_regression_*.png
 # Generated model artifacts are created by notebooks/05_predictive_modeling.ipynb.
 # Do not commit binary model outputs; regenerate them by running the notebook.
 models/*.joblib
+# Generated final model figures are created by notebooks/06_final_model_evaluation.ipynb.
+# Do not commit binary plot outputs; regenerate them by running the notebook.
+reports/figures/final_model_*.png
