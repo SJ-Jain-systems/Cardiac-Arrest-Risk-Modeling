@@ -1,0 +1,21 @@
+subgroup,subgroup_variable,subgroup_level,sample_size,any_predictor_missing_count,any_predictor_missing_rate,minimum_predictor_missingness_p_value,n_predictors_with_missingness_p_lt_0_05,predictors_with_missingness_p_lt_0_05
+Age bands,age_band,18-39,124,123,0.9919354838709677,5.781892634580205e-172,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Age bands,age_band,40-64,479,110,0.22964509394572025,5.781892634580205e-172,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Age bands,age_band,65-79,487,217,0.4455852156057495,5.781892634580205e-172,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Age bands,age_band,80+,70,0,0.0,5.781892634580205e-172,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Gender,Gender,0,507,304,0.5996055226824457,1.0546577460486906e-58,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Gender,Gender,1,653,146,0.22358346094946402,1.0546577460486906e-58,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Smoking status,Smoke,0.0,512,167,0.326171875,1.2858801615518168e-252,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Smoking status,Smoke,1.0,473,108,0.22832980972515857,1.2858801615518168e-252,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Smoking status,Smoke,Missing,175,175,1.0,1.2858801615518168e-252,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Alcohol status,Alcoholic,0.0,579,214,0.3696027633851468,1.2858801615518168e-252,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Alcohol status,Alcoholic,1.0,407,62,0.15233415233415235,1.2858801615518168e-252,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Alcohol status,Alcoholic,Missing,174,174,1.0,1.2858801615518168e-252,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Family history of cardiovascular disease,FHCD,0.0,548,214,0.3905109489051095,1.2858801615518168e-252,8,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD"
+Family history of cardiovascular disease,FHCD,1.0,561,185,0.32976827094474154,1.2858801615518168e-252,8,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD"
+Family history of cardiovascular disease,FHCD,Missing,51,51,1.0,1.2858801615518168e-252,8,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD"
+GCS severity category,gcs_severity,mild,1159,450,0.3882657463330457,1.0,0,
+GCS severity category,gcs_severity,severe,1,0,0.0,1.0,0,
+Triage score group,triage_score_group,1-2 / highest acuity,751,229,0.30492676431424764,1.2858801615518168e-252,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Triage score group,triage_score_group,3 / urgent,274,86,0.31386861313868614,1.2858801615518168e-252,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
+Triage score group,triage_score_group,Missing,135,135,1.0,1.2858801615518168e-252,9,"Na, K, Cl, Urea, Ceratinine, Alcoholic, Smoke, FHCD, TriageScore"
