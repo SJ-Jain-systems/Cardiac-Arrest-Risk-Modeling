@@ -1,14 +1,26 @@
 # Cardiac Arrest Risk Modeling
 
-This repository contains a tabular clinical dataset for building a cardiac arrest risk modeling workflow. The dataset has been organized under `data/` so analysis code, notebooks, reports, and model artifacts can be added without mixing them with raw data files.
+## Project overview
+
+This repository contains a completed, reproducible workflow for exploratory analysis, statistical modeling, predictive modeling, final evaluation, interpretability, and subgroup robustness checks on a tabular cardiac arrest risk dataset. The project is intended for retrospective data science analysis and demonstration of a clinically aware machine learning workflow; it is **not** intended for direct clinical deployment.
+
+The workflow emphasizes:
+
+- preserving raw source data unchanged;
+- storing derived datasets in `data/processed/`;
+- keeping reusable preprocessing and feature logic in `src/`;
+- recording tabular outputs in `reports/`;
+- saving reproducible model artifacts in `models/`; and
+- documenting clinical, ethical, and validation limitations before any real-world use.
 
 ## Dataset
 
 | File | Description |
 | --- | --- |
-| `data/CardiacPatientData.csv` | Patient-level clinical observations with vital signs, demographics, laboratory values, lifestyle/history indicators, triage score, and outcome label. |
+| `data/CardiacPatientData.csv` | Raw patient-level clinical observations, including demographics, vital signs, laboratory values, lifestyle/history indicators, triage score, and outcome label. Treat this file as read-only. |
+| `data/processed/cardiac_patient_processed.csv` | Derived dataset with deterministic engineered clinical features created from the raw CSV. Regenerate this file instead of editing it manually. |
 
-The current CSV includes the following fields:
+The raw dataset includes:
 
 - **Identifiers and demographics:** `ID`, `Age`, `Gender`
 - **Vital signs:** `SBP`, `DBP`, `HR`, `RR`, `BT`, `SpO2`
@@ -17,151 +29,171 @@ The current CSV includes the following fields:
 - **Lifestyle and family history:** `Alcoholic`, `Smoke`, `FHCD`
 - **Target:** `Outcome`
 
-> Note: `Ceratinine` appears to be a misspelling of `Creatinine`. Keep the raw column name unchanged in the source data, but document or normalize it in downstream cleaned datasets.
+> `Ceratinine` appears to be a misspelling of `Creatinine`. Keep the raw column name unchanged in `data/CardiacPatientData.csv`; normalize or document it only in derived analysis outputs.
 
-## Project Roadmap
+### Data handling rules
 
-A strong bioinformatics or clinical data analysis project should move from raw data understanding to validated, interpretable, and reproducible modeling. The roadmap below can guide future development of this repository.
+- Do **not** edit, overwrite, rename, or clean `data/CardiacPatientData.csv` in place.
+- Place cleaned, transformed, or feature-engineered datasets under `data/processed/`.
+- Keep generated report tables under `reports/` and generated figures under `reports/figures/`.
+- Keep generated model binaries under `models/`; `models/*.joblib` files are ignored by Git and should be regenerated as needed.
 
-### 1. Project setup and reproducibility
-
-- Create a consistent Python or R environment file, such as `requirements.txt`, `environment.yml`, `pyproject.toml`, or `renv.lock`.
-- Add a notebook or script structure, for example:
-  - `notebooks/` for exploratory analysis
-  - `src/` for reusable preprocessing and modeling code
-  - `reports/` for generated figures and summaries
-  - `models/` for saved model artifacts, if appropriate
-- Define data handling rules so raw data remains unchanged and derived datasets are stored separately, such as `data/processed/`.
-- Add a reproducible pipeline tool if the project grows, such as Make, Snakemake, Nextflow, DVC, or a lightweight Python CLI.
-
-### 2. Data dictionary and clinical context
-
-- Build a data dictionary describing each variable, unit of measurement, expected range, encoding, and clinical interpretation.
-- Confirm binary encodings for columns such as `Gender`, `Alcoholic`, `Smoke`, `FHCD`, and `Outcome`.
-- Clarify whether each row is an independent patient, repeated measurement, encounter, or time point, especially because `ID` values may repeat.
-- Document inclusion criteria, exclusion criteria, collection setting, and outcome definition.
-- Identify whether the task is risk prediction, triage support, retrospective association analysis, or another clinical objective.
-
-### 3. Data quality assessment
-
-- Check missing values, duplicate rows, repeated patient IDs, invalid values, and impossible physiological measurements.
-- Validate numeric ranges for vital signs, electrolytes, renal function markers, age, GCS, and triage score.
-- Review inconsistent labels, spelling issues, and unit assumptions.
-- Decide how to handle repeated observations from the same patient to avoid data leakage between train and test sets.
-- Produce a data quality report with summary tables and visualizations.
-
-### 4. Exploratory data analysis
-
-- Summarize cohort characteristics overall and stratified by `Outcome`.
-- Visualize distributions of vitals, labs, age, GCS, and triage score.
-- Compare outcome rates across clinically relevant groups, such as age bands, SpO2 ranges, GCS categories, smoking status, and family history.
-- Examine correlations among predictors and detect multicollinearity.
-- Evaluate class balance for the `Outcome` label.
-
-### 5. Preprocessing and feature engineering
-
-- Split data into training, validation, and test sets before fitting transformations.
-- Use patient-level splitting if `ID` represents repeated measurements from the same individual.
-- Impute missing values using training data only.
-- Encode categorical variables consistently.
-- Scale or transform numeric variables where needed.
-- Consider clinically meaningful derived features, such as:
-  - Pulse pressure: `SBP - DBP`
-  - Shock index: `HR / SBP`
-  - Age bands
-  - Hypoxemia indicator from `SpO2`
-  - GCS severity category
-  - Electrolyte abnormality flags
-
-### 6. Baseline statistical analysis
-
-- Fit simple baseline models before complex models.
-- Start with interpretable approaches such as logistic regression and regularized logistic regression.
-- Estimate effect sizes with confidence intervals where appropriate.
-- Compare unadjusted and adjusted associations between predictors and outcome.
-- Report assumptions and limitations clearly.
-
-### 7. Predictive modeling
-
-- Train multiple candidate models, such as:
-  - Logistic regression
-  - Random forest
-  - Gradient boosting models such as XGBoost, LightGBM, or CatBoost
-  - Support vector machines or neural networks only if justified by performance and data size
-- Use cross-validation that respects patient grouping if repeated IDs exist.
-- Tune hyperparameters with a validation set or nested cross-validation.
-- Avoid leakage by fitting preprocessing steps inside the cross-validation pipeline.
-
-### 8. Model evaluation
-
-- Report metrics that match the clinical use case, including:
-  - AUROC
-  - AUPRC
-  - Sensitivity/recall
-  - Specificity
-  - Precision/positive predictive value
-  - Negative predictive value
-  - F1 score
-  - Calibration slope and intercept
-  - Brier score
-- Choose operating thresholds based on clinical tradeoffs rather than accuracy alone.
-- Include confusion matrices at selected thresholds.
-- Evaluate calibration plots and decision curve analysis if the model may support clinical decisions.
-
-### 9. Interpretability and biological or clinical insight
-
-- Use model coefficients, permutation importance, SHAP values, or partial dependence plots to explain influential features.
-- Compare model findings with known clinical risk factors for cardiac deterioration or arrest.
-- Distinguish predictive signal from causal interpretation.
-- Highlight clinically plausible patterns, surprising associations, and limitations.
-
-### 10. Bias, fairness, and robustness
-
-- Assess model performance across subgroups, such as age, gender, smoking status, and other clinically relevant categories.
-- Check whether missingness or measurement patterns differ across groups.
-- Evaluate robustness to outliers, alternative preprocessing choices, and different train/test splits.
-- Document potential sources of bias, including single-site collection, selection bias, measurement bias, and label quality.
-
-### 11. Reporting and documentation
-
-- Create a final analysis report with methods, cohort summary, model results, interpretation, limitations, and next steps.
-- Include reproducible figures and tables.
-- Version model artifacts and processed datasets only when permitted.
-- Add clear instructions for rerunning the analysis from a clean checkout.
-
-### 12. Future enhancements
-
-- Add external validation data if available.
-- Compare model performance against existing clinical scores.
-- Incorporate time-aware modeling if observations are longitudinal.
-- Explore survival analysis if time-to-event labels are available.
-- Add automated tests for preprocessing functions and model pipelines.
-- Create a model card describing intended use, limitations, ethical considerations, and monitoring needs.
-
-## Suggested Initial Repository Structure
+## Repository structure
 
 ```text
 Cardiac-Arrest-Risk-Modeling/
 ├── README.md
+├── requirements.txt
 ├── data/
-│   └── CardiacPatientData.csv
+│   ├── CardiacPatientData.csv
+│   └── processed/
+│       └── cardiac_patient_processed.csv
+├── models/
+│   └── .gitkeep
 ├── notebooks/
-│   └── 01_exploratory_data_analysis.ipynb
-├── src/
-│   ├── preprocessing.py
-│   ├── features.py
-│   └── modeling.py
+│   ├── 01_data_quality_assessment.ipynb
+│   ├── 02_exploratory_data_analysis.ipynb
+│   ├── 03_baseline_logistic_regression.ipynb
+│   ├── 04_statistical_analysis_odds_ratios.ipynb
+│   ├── 05_predictive_modeling.ipynb
+│   ├── 06_final_model_evaluation.ipynb
+│   ├── 07_model_interpretability.ipynb
+│   └── 08_bias_fairness_robustness.ipynb
 ├── reports/
+│   ├── data_dictionary.md
+│   ├── final_report.md
+│   ├── baseline_logistic_regression_metrics.csv
+│   ├── final_model_metrics.csv
+│   ├── model_comparison.csv
+│   ├── odds_ratio_results.csv
+│   ├── robustness_checks.csv
+│   ├── subgroup_missingness_tests.csv
+│   ├── subgroup_performance.csv
+│   ├── threshold_analysis.csv
 │   └── figures/
+├── src/
+│   ├── config.py
+│   ├── create_processed_dataset.py
+│   ├── features.py
+│   └── preprocessing.py
 └── tests/
+    └── .gitkeep
 ```
 
-Only `README.md` and `data/CardiacPatientData.csv` currently exist. The remaining folders are recommended additions for future work.
+## Setup instructions
 
-## Immediate Next Steps
+1. Clone the repository and move into the project directory:
 
-1. Create a data dictionary for every column.
-2. Confirm whether repeated `ID` values represent repeated measurements from the same patient.
-3. Run an exploratory data analysis notebook.
-4. Build a leakage-safe baseline logistic regression model.
-5. Evaluate discrimination, calibration, and clinically meaningful thresholds.
+   ```bash
+   git clone <repository-url>
+   cd Cardiac-Arrest-Risk-Modeling
+   ```
+
+2. Create and activate a virtual environment:
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+
+   On Windows PowerShell, use:
+
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   python -m pip install --upgrade pip
+   python -m pip install -r requirements.txt
+   ```
+
+4. Start Jupyter if you plan to run notebooks interactively:
+
+   ```bash
+   jupyter notebook
+   ```
+
+## How to run the analysis
+
+From the repository root, first regenerate the processed dataset:
+
+```bash
+python src/create_processed_dataset.py
+```
+
+Then run the notebooks in numeric order from `notebooks/01_data_quality_assessment.ipynb` through `notebooks/08_bias_fairness_robustness.ipynb`. This order ensures that dataset checks, exploratory outputs, baseline metrics, model comparison results, the saved model artifact, final evaluation, interpretability outputs, and robustness tables are produced consistently.
+
+The notebooks can be run interactively in Jupyter, or executed from the command line with a notebook runner such as `nbconvert`:
+
+```bash
+jupyter nbconvert --to notebook --execute notebooks/01_data_quality_assessment.ipynb --inplace
+```
+
+Repeat the command for each notebook in the notebook order below.
+
+## Notebook order
+
+| Order | Notebook | Purpose | Key outputs |
+| --- | --- | --- | --- |
+| 1 | `01_data_quality_assessment.ipynb` | Checks shape, data types, missingness, duplicates, repeated IDs, clinical ranges, outliers, and raw data integrity. | Data-quality summaries and figures under `reports/` and `reports/figures/`. |
+| 2 | `02_exploratory_data_analysis.ipynb` | Summarizes cohort characteristics, outcome balance, stratified summaries, distributions, group outcome rates, and correlations. | EDA figures under `reports/figures/`. |
+| 3 | `03_baseline_logistic_regression.ipynb` | Builds a leakage-aware baseline logistic regression pipeline. | `reports/baseline_logistic_regression_metrics.csv` and baseline plots. |
+| 4 | `04_statistical_analysis_odds_ratios.ipynb` | Estimates unadjusted and adjusted odds ratios for interpretable statistical analysis. | `reports/odds_ratio_results.csv`. |
+| 5 | `05_predictive_modeling.ipynb` | Trains and compares candidate machine learning models with leakage-safe splitting and cross-validation. | `reports/model_comparison.csv` and `models/best_model.joblib`. |
+| 6 | `06_final_model_evaluation.ipynb` | Evaluates the saved final model on the held-out test set, including threshold analysis, discrimination, calibration, and confusion matrices. | `reports/final_model_metrics.csv`, `reports/threshold_analysis.csv`, and final model figures. |
+| 7 | `07_model_interpretability.ipynb` | Explains the final model with coefficients where applicable, permutation importance, and SHAP where compatible. | Interpretability figures under `reports/figures/`. |
+| 8 | `08_bias_fairness_robustness.ipynb` | Evaluates subgroup performance, missingness patterns, and robustness to modeling/preprocessing alternatives. | `reports/subgroup_performance.csv`, `reports/subgroup_missingness_tests.csv`, and `reports/robustness_checks.csv`. |
+
+## Generated reports
+
+The repository includes generated tabular reports and narrative documentation:
+
+| File | Description |
+| --- | --- |
+| `reports/data_dictionary.md` | Variable definitions, assumed encodings, clinical context, and data-quality notes. |
+| `reports/final_report.md` | Final narrative report summarizing methods, results, interpretation, limitations, and next steps. |
+| `reports/baseline_logistic_regression_metrics.csv` | Held-out performance metrics for the baseline logistic regression model. |
+| `reports/odds_ratio_results.csv` | Unadjusted and adjusted odds-ratio results. |
+| `reports/model_comparison.csv` | Candidate model comparison results from predictive modeling. |
+| `reports/final_model_metrics.csv` | Final model metrics, selected operating threshold, and calibration/discrimination summaries. |
+| `reports/threshold_analysis.csv` | Sensitivity, specificity, predictive values, and confusion matrix counts across thresholds. |
+| `reports/subgroup_performance.csv` | Model performance by subgroup. |
+| `reports/subgroup_missingness_tests.csv` | Missingness comparisons by subgroup. |
+| `reports/robustness_checks.csv` | Robustness scenarios and performance comparisons. |
+
+Generated figures are written to `reports/figures/`. Several figure patterns are ignored by Git because they can be regenerated from the notebooks.
+
+## Model artifacts
+
+The primary model artifact is:
+
+| Artifact | Created by | Description |
+| --- | --- | --- |
+| `models/best_model.joblib` | `notebooks/05_predictive_modeling.ipynb` | Serialized scikit-learn pipeline for the best-performing candidate model. |
+
+`models/*.joblib` files are intentionally ignored by Git. Recreate the final model artifact by running `notebooks/05_predictive_modeling.ipynb`; downstream evaluation and interpretability notebooks load this artifact when it is available.
+
+## Important clinical and ethical limitations
+
+- This project is for retrospective analysis and model-development demonstration only; it is not a validated medical device or bedside decision-support tool.
+- The dataset provenance, collection setting, inclusion criteria, exclusion criteria, outcome definition, measurement timing, and label quality must be confirmed before clinical interpretation.
+- Repeated `ID` values may represent repeated encounters or measurements; splitting must remain leakage-safe at the patient or group level when repeated IDs are present.
+- Associations and feature importances are not causal effects and should not be interpreted as treatment recommendations.
+- Model performance may vary across demographic or clinical subgroups; subgroup, fairness, and missingness analyses are necessary but not sufficient for safe deployment.
+- External validation on independent data is required before any operational use.
+- Threshold selection must be based on explicit clinical tradeoffs, workflow capacity, risk tolerance, and prospective validation.
+- Sensitive health data must be handled under applicable privacy, security, governance, and institutional review requirements.
+
+## Future enhancements
+
+- Add automated tests for preprocessing, feature engineering, and model training utilities.
+- Add a lightweight pipeline runner, such as Make, DVC, Snakemake, or a Python CLI, to execute the full workflow from a clean checkout.
+- Expand metadata with confirmed data provenance, cohort criteria, units, measurement timing, and outcome definitions.
+- Compare model performance against established clinical scores or triage rules when appropriate.
+- Add external and temporal validation datasets.
+- Incorporate time-aware or survival modeling if timestamped longitudinal data becomes available.
+- Add model-card documentation covering intended use, contraindications, subgroup behavior, monitoring, and maintenance requirements.
+- Add continuous integration checks for notebooks, code formatting, and reproducibility.
