@@ -178,7 +178,7 @@ The primary model artifact is:
 
 ## License
 
-This project is free to use, copy, modify, and distribute as long as appropriate credit is given to the original author. See the [LICENSE](LICENSE) file for details.
+This project is free to use, copy, modify, and distribute as long as appropriate credit is given to the original author (Shreyans Jain/SJ-Jain-Systems). See the [LICENSE](LICENSE) file for details.
 
 ## Important clinical and ethical limitations
 
