@@ -185,6 +185,31 @@ Repeat the command for each notebook in the notebook order below.
 | 7 | `07_model_interpretability.ipynb` | Explains the final model with coefficients where applicable, permutation importance, and SHAP where compatible. | Interpretability figures under `reports/figures/`. |
 | 8 | `08_bias_fairness_robustness.ipynb` | Evaluates subgroup performance, missingness patterns, and robustness to modeling/preprocessing alternatives. | `reports/subgroup_performance.csv`, `reports/subgroup_missingness_tests.csv`, and `reports/robustness_checks.csv`. |
 
+## Headline results
+
+Final held-out performance of the saved model, with **95% confidence intervals
+from a patient-level bootstrap** (1,000 resamples of unique patient IDs, not
+rows). Sensitivity and specificity are reported at the recommended operating
+threshold (0.45). Point estimates and intervals are produced by
+`notebooks/06_final_model_evaluation.ipynb` and stored in
+`reports/final_model_metrics.csv`.
+
+| Metric | Estimate (95% CI) |
+| --- | --- |
+| AUROC | 0.70 (0.20–0.98) |
+| AUPRC | 0.94 (0.79–1.00) |
+| Sensitivity @ 0.45 | 0.90 (0.81–0.99) |
+| Specificity @ 0.45 | 0.56 (0.00–0.97) |
+| Brier score | 0.13 (0.03–0.26) |
+
+The held-out test set contains 1,080 rows but only **22 unique patients**, so
+the intervals are wide. This is intentional: because one patient can contribute
+hundreds of rows, the bootstrap resamples at the patient/ID level rather than
+the row level. Row-level resampling would treat correlated repeated measures as
+independent, inflate the effective sample size, and badly understate
+uncertainty. The wide CIs are an honest reflection of how few independent
+patients the estimates rest on.
+
 ## Generated reports
 
 The repository includes generated tabular reports and narrative documentation:
@@ -196,7 +221,7 @@ The repository includes generated tabular reports and narrative documentation:
 | `reports/baseline_logistic_regression_metrics.csv` | Held-out performance metrics for the baseline logistic regression model. |
 | `reports/odds_ratio_results.csv` | Unadjusted and adjusted odds-ratio results. |
 | `reports/model_comparison.csv` | Candidate model comparison results from predictive modeling. |
-| `reports/final_model_metrics.csv` | Final model metrics, selected operating threshold, and calibration/discrimination summaries. |
+| `reports/final_model_metrics.csv` | Final model metrics with patient-level bootstrap 95% CIs (e.g. `auroc`, `auroc_lower`, `auroc_upper`), selected operating threshold, and calibration/discrimination summaries. |
 | `reports/threshold_analysis.csv` | Sensitivity, specificity, predictive values, and confusion matrix counts across thresholds. |
 | `reports/subgroup_performance.csv` | Model performance by subgroup. |
 | `reports/subgroup_missingness_tests.csv` | Missingness comparisons by subgroup. |

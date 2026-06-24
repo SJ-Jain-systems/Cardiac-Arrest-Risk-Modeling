@@ -73,20 +73,28 @@ def bootstrap_ci(
     n_boot: int = 1000,
     seed: int = RANDOM_STATE,
 ) -> tuple[float, float, float]:
-    """Bootstrap a 95% CI for ``metric_fn`` by resampling at the group level.
+    """Patient-level bootstrap 95% CI for ``metric_fn``.
 
-    Resampling whole patient groups (not individual rows) keeps the CI honest
-    when a patient contributes multiple rows. ``metric_fn`` must accept
-    ``(y_true, y_prob)`` and return a float (e.g. ``roc_auc_score``).
+    The dataset has many rows per patient (one ``ID`` has 266 rows), so the
+    bootstrap resamples whole patient groups with replacement and pulls all
+    rows for each sampled ``ID`` before scoring. Resampling at the row level
+    would inflate the effective sample size and understate uncertainty.
+
+    ``metric_fn`` must accept ``(y_true, y_prob)`` and return a float (e.g.
+    ``roc_auc_score`` or a threshold-based sensitivity closure).
 
     Returns
     -------
     tuple[float, float, float]
-        ``(mean, lower_2.5pct, upper_97.5pct)`` over valid bootstrap samples.
+        ``(point_estimate, lower_2.5pct, upper_97.5pct)`` where
+        ``point_estimate`` is ``metric_fn`` evaluated on the full (observed)
+        input and the bounds are percentiles of the bootstrap distribution.
     """
     y_true = np.asarray(y_true).astype(int)
     y_prob = np.asarray(y_prob, dtype=float)
     groups = np.asarray(groups)
+
+    point_estimate = float(metric_fn(y_true, y_prob))
 
     unique_groups = np.unique(groups)
     group_to_rows = {g: np.flatnonzero(groups == g) for g in unique_groups}
@@ -107,9 +115,9 @@ def bootstrap_ci(
 
     estimates = np.asarray(estimates, dtype=float)
     if estimates.size == 0:
-        return (np.nan, np.nan, np.nan)
+        return (point_estimate, np.nan, np.nan)
     return (
-        float(np.mean(estimates)),
+        point_estimate,
         float(np.percentile(estimates, 2.5)),
         float(np.percentile(estimates, 97.5)),
     )
