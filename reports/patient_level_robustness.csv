@@ -1,0 +1,4 @@
+analysis_unit,cv,n_samples,n_patients,positive_rate,auroc
+row-level (encounters),GroupKFold(5) by patient ID,5906,112,0.856,0.737
+patient-level (1 row/patient),StratifiedKFold(5),112,112,0.83,0.903
+patient-level (1 row/patient),LeaveOneOut,112,112,0.83,0.906

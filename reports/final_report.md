@@ -102,6 +102,16 @@ The odds-ratio analysis in `reports/odds_ratio_results.csv` provides both unadju
 
 ## 8. Predictive modeling methods
 
+### Unit of analysis
+
+The dataset contains 5,906 rows but only **112 unique patient IDs**. Rows per patient range from 1 to 266 (median ~50), and only 4 patients contribute a single row, so the records are repeated measurements rather than independent observations. The **effective sample size is therefore approximately 112 patients, not ~5,900 rows**.
+
+For this reason, all model development and evaluation split and cross-validate at the **patient/ID level** using `StratifiedGroupKFold` / `GroupKFold`: every record for a patient is kept within a single fold, so no patient appears in both training and test. Row-level splitting would let a patient's correlated records straddle the split and produce optimistically biased metrics. Held-out folds contain as few as ~22 patients, which is the main reason the bootstrap confidence intervals reported in `reports/final_model_metrics.csv` are wide.
+
+As a sensitivity analysis, notebook 08 adds a patient-level robustness arm (`reports/patient_level_robustness.csv`) that aggregates the data to one row per patient (maximum `Outcome` label, mean of numeric predictors) and refits the model with cross-validation. Patient-grouped row-level cross-validation gave AUROC ≈ 0.74, while the aggregated patient-level model gave AUROC ≈ 0.90 (5-fold) and ≈ 0.91 (leave-one-patient-out). The discrimination signal persists when each patient counts exactly once, but with only ~112 patients all of these estimates carry substantial uncertainty and should be treated as preliminary rather than confirmatory.
+
+### Model comparison
+
 The predictive modeling workflow compared multiple candidate models using patient-ID-aware splitting and cross-validation:
 
 - Logistic Regression
@@ -141,7 +151,7 @@ The final model evaluation is summarized in `reports/final_model_metrics.csv`. O
 | F1 at threshold | 0.914 |
 | Confusion matrix at threshold | TN 70, FP 77, FN 95, TP 918 |
 
-The final model shows strong discrimination and high AUPRC, partly influenced by the high positive-class prevalence. Calibration metrics indicate that predicted probabilities may require recalibration before clinical deployment. The low-to-moderate NPV also means a low-risk prediction should not be used to rule out risk without clinical oversight.
+The final model shows moderate-to-good discrimination and a high AUPRC, the latter inflated by the high positive-class prevalence. These are **point estimates from an effective sample of only ~112 patients (≈22 in the held-out fold)**, so they carry wide confidence intervals (reported in `reports/final_model_metrics.csv`) and should be read as preliminary rather than confirmatory. Calibration metrics indicate that predicted probabilities may require recalibration before clinical deployment. The low-to-moderate NPV also means a low-risk prediction should not be used to rule out risk without clinical oversight.
 
 Generated final evaluation figures include `reports/figures/final_model_roc_curve.png`, `reports/figures/final_model_precision_recall_curve.png`, `reports/figures/final_model_calibration_curve.png`, and `reports/figures/final_model_confusion_matrices.png`.
 
@@ -178,7 +188,7 @@ Important interpretation caveats:
 
 ## 12. Bias, fairness, and robustness
 
-Fairness and subgroup results are reported in `reports/subgroup_performance.csv` and `reports/subgroup_missingness_tests.csv`. Robustness checks are reported in `reports/robustness_checks.csv`.
+Fairness and subgroup results are reported in `reports/subgroup_performance.csv` and `reports/subgroup_missingness_tests.csv`. Robustness checks are reported in `reports/robustness_checks.csv`, and the patient-level (one row per patient) sensitivity analysis is in `reports/patient_level_robustness.csv` (see the Unit of analysis subsection in Section 8).
 
 Subgroup analysis showed that performance and missingness varied across clinically relevant groups:
 
@@ -195,7 +205,7 @@ Robustness checks found that AUROC varied across alternative ID-aware split seed
 The main limitations are:
 
 1. **Outcome ambiguity:** The clinical meaning and timing of `Outcome = 1` are not documented in the data files.
-2. **Repeated observations:** Rows are not clearly independent; repeated IDs may represent multiple time points or duplicate encounters.
+2. **Repeated observations and small effective sample:** Rows are not independent. The 5,906 rows correspond to only 112 unique patients (one patient contributes 266 rows), so the **effective sample size is ~112 patients**. Headline metrics rest on this small number of patients — and as few as ~22 in any held-out fold — so estimates are uncertain regardless of the large row count, and all results should be interpreted at the patient level. The patient-level robustness arm in `reports/patient_level_robustness.csv` is a sensitivity check on this point.
 3. **Missing-not-at-random predictors:** Laboratory and history/triage variables are missing for large portions of the cohort.
 4. **Data quality outliers:** Implausible values such as `DBP = 999` and `GCS = 100` need source-system review.
 5. **No external validation:** Current performance is based on internal grouped splits only.
@@ -270,6 +280,7 @@ From the repository root, the analysis can be reproduced as follows.
    - `reports/subgroup_performance.csv`
    - `reports/subgroup_missingness_tests.csv`
    - `reports/robustness_checks.csv`
+   - `reports/patient_level_robustness.csv`
 
 6. Review regenerated figures in `reports/figures/`. Binary figure outputs and model artifacts are intentionally excluded from version control by `.gitignore`; regenerate them from the notebooks when needed.
 
