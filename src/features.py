@@ -14,7 +14,6 @@ from typing import Hashable
 import numpy as np
 import pandas as pd
 
-
 LAB_ABNORMALITY_SPECS = {
     "Na": (135.0, 145.0, "sodium_abnormal_flag"),
     "K": (3.5, 5.0, "potassium_abnormal_flag"),

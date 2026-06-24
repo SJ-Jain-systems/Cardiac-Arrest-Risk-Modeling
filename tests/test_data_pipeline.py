@@ -8,7 +8,6 @@ import pytest
 from src.features import add_clinical_features, add_pulse_pressure, add_shock_index
 from src.preprocessing import create_train_validation_test_splits, load_raw_dataset
 
-
 REQUIRED_RAW_COLUMNS = {
     "ID",
     "SBP",
