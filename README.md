@@ -137,6 +137,25 @@ Cardiac-Arrest-Risk-Modeling/
 
 ## How to run the analysis
 
+### Preferred: reproduce everything with `make`
+
+From a clean checkout, the entire analysis can be reproduced with a single
+command from the repository root:
+
+```bash
+make all
+```
+
+This runs, in order: `install` (editable package + pinned requirements),
+`data` (build the processed dataset), `lint` (ruff + black checks), `test`
+(pytest), and `notebooks` (execute `01`–`08` in order, in place). Individual
+stages are also available — `make data`, `make lint`, `make test`,
+`make notebooks` — and `make clean` removes generated datasets, model
+artifacts, figures, and notebook checkpoints. Run `make` with no target, or
+see the comment block at the top of the `Makefile`, for the full list.
+
+### Manual steps
+
 From the repository root, first regenerate the processed dataset:
 
 ```bash
