@@ -105,10 +105,27 @@ Cardiac-Arrest-Risk-Modeling/
    .venv\Scripts\Activate.ps1
    ```
 
-3. Install dependencies:
+3. Install dependencies. Versions are pinned for reproducibility, with
+   `pyproject.toml` as the source of truth.
+
+   Recommended — install the project as an editable package, including the
+   development tooling (`pytest`, `ruff`, `black`):
 
    ```bash
    python -m pip install --upgrade pip
+   python -m pip install -e ".[dev]"
+   ```
+
+   To install only the runtime analysis stack (no dev tooling):
+
+   ```bash
+   python -m pip install -e .
+   ```
+
+   Alternatively, the equivalent pinned set is also available via
+   `requirements.txt`:
+
+   ```bash
    python -m pip install -r requirements.txt
    ```
 
