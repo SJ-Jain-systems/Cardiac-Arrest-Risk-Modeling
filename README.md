@@ -1,5 +1,7 @@
 # Cardiac Arrest Risk Modeling
 
+[![CI](https://github.com/sj-jain-systems/cardiac-arrest-risk-modeling/actions/workflows/ci.yml/badge.svg)](https://github.com/sj-jain-systems/cardiac-arrest-risk-modeling/actions/workflows/ci.yml)
+
 ## Project overview
 
 This repository contains a completed, reproducible workflow for exploratory analysis, statistical modeling, predictive modeling, final evaluation, interpretability, and subgroup robustness checks on a tabular cardiac arrest risk dataset. The project is intended for retrospective data science analysis and demonstration of a clinically aware machine learning workflow; it is **not** intended for direct clinical deployment.

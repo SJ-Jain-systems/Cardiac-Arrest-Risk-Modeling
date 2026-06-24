@@ -1,0 +1,136 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint (ruff + black)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install linters
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black
+
+      - name: Run ruff
+        run: ruff check src/ tests/
+
+      - name: Run black
+        run: black --check src/ tests/
+
+  test:
+    name: Test (pytest)
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pytest
+        run: pytest tests/ -v
+
+  reproduce:
+    name: Reproduce processed dataset
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Remove any committed processed dataset
+        run: rm -f data/processed/cardiac_patient_processed.csv
+
+      - name: Build processed dataset
+        run: python src/create_processed_dataset.py
+
+      - name: Assert processed dataset exists with nonzero rows
+        run: |
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+          import pandas as pd
+
+          path = Path("data/processed/cardiac_patient_processed.csv")
+          if not path.exists():
+              sys.exit(f"ERROR: expected output not found: {path}")
+
+          df = pd.read_csv(path)
+          if len(df) == 0:
+              sys.exit(f"ERROR: processed dataset has zero rows: {path}")
+
+          print(f"OK: {path} created with {len(df)} rows and {df.shape[1]} columns")
+          PY
+
+  notebooks:
+    name: Execute notebooks (headless)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute notebooks 01 through 08 in order
+        env:
+          MPLBACKEND: Agg
+        run: |
+          set -e
+          for nb in \
+            notebooks/01_data_quality_assessment.ipynb \
+            notebooks/02_exploratory_data_analysis.ipynb \
+            notebooks/03_baseline_logistic_regression.ipynb \
+            notebooks/04_statistical_analysis_odds_ratios.ipynb \
+            notebooks/05_predictive_modeling.ipynb \
+            notebooks/06_final_model_evaluation.ipynb \
+            notebooks/07_model_interpretability.ipynb \
+            notebooks/08_bias_fairness_robustness.ipynb; do
+            echo "::group::Executing $nb"
+            jupyter nbconvert --to notebook --execute --inplace \
+              --ExecutePreprocessor.timeout=1200 "$nb"
+            echo "::endgroup::"
+          done
