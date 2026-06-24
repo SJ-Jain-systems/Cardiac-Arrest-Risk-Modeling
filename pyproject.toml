@@ -33,11 +33,10 @@ dev = [
 ]
 
 [tool.setuptools]
-# The analysis code in src/ is used as scripts and as an implicit namespace
-# package (e.g. `from src.features import ...` in tests, run from the repo
-# root). There is no installable top-level package, so no modules are
-# installed; `pip install -e .` provides the pinned dependency environment.
-py-modules = []
+# The analysis code lives in the importable `src` package. Installing the
+# project (`pip install -e .`) makes `from src.config import ...` etc. resolve
+# from anywhere, so scripts, tests, and notebooks all share one import style.
+packages = ["src"]
 
 [tool.ruff]
 line-length = 88

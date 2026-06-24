@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from config import PROCESSED_DATA_DIR, RAW_DATA_PATH
-from features import add_clinical_features
+from src.config import PROCESSED_DATA_DIR, RAW_DATA_PATH
+from src.features import add_clinical_features
 
 
 OUTPUT_PATH = PROCESSED_DATA_DIR / "cardiac_patient_processed.csv"
