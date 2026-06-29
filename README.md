@@ -239,6 +239,64 @@ The primary model artifact is:
 
 `models/*.joblib` files are intentionally ignored by Git. Recreate the final model artifact by running `notebooks/05_predictive_modeling.ipynb`; downstream evaluation and interpretability notebooks load this artifact when it is available.
 
+## RAG / Retrieval
+
+The project ships an optional **retrieval-augmented generation (RAG)** layer
+(`src/rag/`) that makes the generated reports queryable in natural language.
+It indexes the Markdown and CSV artifacts under `reports/` and answers questions
+like *"What is the sensitivity at threshold 0.45?"* or *"How is creatinine
+abnormality defined?"* with grounded, source-cited answers. It is fully isolated
+from the analysis pipeline — none of the notebooks or `src/` analysis modules
+import it, and its dependencies live in a separate optional group.
+
+- **Retrieval** uses local [`sentence-transformers`](https://www.sbert.net/)
+  embeddings (`all-MiniLM-L6-v2`) and a lightweight NumPy cosine-similarity index
+  persisted under `models/rag_index/` (git-ignored). This path is fully offline
+  and needs **no API key**.
+- **Generation** sends the retrieved excerpts to the Claude API
+  (`claude-opus-4-8`) with a grounding prompt that instructs the model to answer
+  **only** from the provided reports, cite sources by filename, and say
+  *"I don't know based on the reports."* when the context is insufficient. This
+  path requires `ANTHROPIC_API_KEY`.
+
+### Install
+
+The RAG dependencies are an optional extra, so the core analysis install stays
+lean:
+
+```bash
+python -m pip install -e ".[rag]"
+```
+
+### Build the index
+
+```bash
+python -m src.rag.cli build          # or: make rag-index
+```
+
+This downloads the embedding model once and writes
+`models/rag_index/embeddings.npz` and `models/rag_index/chunks.json`.
+
+### Query
+
+```bash
+# Retrieval only — no API key required; prints the top-k excerpts with scores
+python -m src.rag.cli query "What is the sensitivity at threshold 0.45?" --retrieve-only
+
+# Full RAG — needs ANTHROPIC_API_KEY; prints a grounded, cited answer
+export ANTHROPIC_API_KEY=...
+python -m src.rag.cli query "How is creatinine abnormality defined?"
+# or: make rag-query Q="How is creatinine abnormality defined?"
+```
+
+Use `--top-k N` to change how many excerpts are retrieved (default 5).
+
+> **Clinical and ethical note:** RAG answers are grounded summaries of this
+> project's existing reports, not medical advice or a decision-support tool. The
+> same limitations described below apply — answers can only be as reliable as the
+> underlying retrospective analysis, and only the aggregate reports are indexed
+> (the raw patient CSV is never included).
+
 ## License
 
 This project is free to use, copy, modify, and distribute as long as appropriate credit is given to the original author (Shreyans Jain/SJ-Jain-Systems). See the [LICENSE](LICENSE) file for details.

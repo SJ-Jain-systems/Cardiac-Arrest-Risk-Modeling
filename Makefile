@@ -10,6 +10,10 @@
 #   make notebooks  Execute notebooks 01-08 in order (in place)
 #   make clean      Remove generated data, models, figures, and checkpoints
 #
+# Optional RAG layer (requires `pip install -e ".[rag]"`; kept out of `all`):
+#   make rag-index            Build the retrieval index from reports/
+#   make rag-query Q="..."     Answer a question (generation needs ANTHROPIC_API_KEY)
+#
 # Override the interpreter if needed:  make all PYTHON=python3.11
 # =============================================================================
 
@@ -21,7 +25,8 @@ NB_DIR        := notebooks
 NBEXEC        := jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=1200
 
 .PHONY: all install data lint test notebooks clean \
-        nb01 nb02 nb03 nb04 nb05 nb06 nb07 nb08
+        nb01 nb02 nb03 nb04 nb05 nb06 nb07 nb08 \
+        rag-index rag-query
 
 # Full reproduction from a clean checkout, in strict order.
 all:
@@ -66,6 +71,15 @@ nb07: nb06
 	$(NBEXEC) $(NB_DIR)/07_model_interpretability.ipynb
 nb08: nb07
 	$(NBEXEC) $(NB_DIR)/08_bias_fairness_robustness.ipynb
+
+# Optional RAG layer. Kept out of `all` so reproduction stays offline and
+# key-free. Building the index needs the `rag` extra; querying with generation
+# additionally needs ANTHROPIC_API_KEY (use --retrieve-only to skip the LLM).
+rag-index:
+	$(PYTHON) -m src.rag.cli build
+
+rag-query:
+	$(PYTHON) -m src.rag.cli query "$(Q)"
 
 clean:
 	rm -rf data/processed/
