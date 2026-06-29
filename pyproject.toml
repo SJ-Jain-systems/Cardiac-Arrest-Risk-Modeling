@@ -31,12 +31,20 @@ dev = [
     "ruff==0.11.13",
     "black==25.1.0",
 ]
+# Optional retrieval-augmented generation (RAG) layer. Kept out of the core
+# install so the analysis stack and CI stay lean. Install with:
+#   pip install -e ".[rag]"
+# Retrieval (local embeddings) needs no API key; generation uses the Claude API.
+rag = [
+    "sentence-transformers==3.3.1",   # local embeddings; pulls torch + transformers
+    "anthropic==0.69.0",              # Claude API SDK (generation only)
+]
 
 [tool.setuptools]
 # The analysis code lives in the importable `src` package. Installing the
 # project (`pip install -e .`) makes `from src.config import ...` etc. resolve
 # from anywhere, so scripts, tests, and notebooks all share one import style.
-packages = ["src"]
+packages = ["src", "src.rag"]
 
 [tool.ruff]
 line-length = 88

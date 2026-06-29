@@ -2,3 +2,4 @@ reports/figures/eda_*.png
 reports/figures/baseline_logistic_regression_*.png
 models/*.joblib
 reports/figures/final_model_*.png
+models/rag_index/

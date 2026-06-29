@@ -21,3 +21,9 @@ jupyter==1.1.1
 pytest==8.3.5
 ruff==0.11.13
 black==25.1.0
+
+# --- RAG (optional) ([project.optional-dependencies].rag) ---
+# Install with: pip install -e ".[rag]"
+# Retrieval needs no API key; generation uses the Claude API (ANTHROPIC_API_KEY).
+sentence-transformers==3.3.1
+anthropic==0.69.0
