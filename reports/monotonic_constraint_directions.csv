@@ -1,0 +1,16 @@
+feature,constraint,source,coefficient,p_value
+SBP,1,Adjusted clinical model,0.042785,4.9875124071327476e-17
+DBP,0,not covered,,
+HR,-1,Adjusted clinical model,-0.094607,7.911865737029244e-50
+RR,-1,Adjusted clinical model,-0.09052,7.147004192748632e-11
+BT,0,not covered,,
+SpO2,1,Adjusted clinical model,0.13145,5.065316044952166e-07
+Age,-1,Adjusted clinical model,-0.030015,2.681260634898252e-05
+GCS,0,Adjusted clinical model,-0.00329,0.7440815210400137
+Na,0,not covered,,
+K,0,not covered,,
+Cl,0,not covered,,
+Urea,0,not covered,,
+Ceratinine,0,not covered,,
+pulse_pressure,0,not covered,,
+shock_index,0,not covered,,

@@ -85,14 +85,25 @@ Preprocessing for mixed numeric and categorical inputs includes appropriate impu
 
 ## 7. Model type
 
-The selected final model is a **Random Forest binary classifier** evaluated in a preprocessing pipeline for mixed tabular clinical predictors. The model was selected from candidate approaches including logistic regression, regularized logistic regression, random forest, and gradient boosting.
+The final model is selected from five tuned candidates -- logistic regression, regularized (elasticnet) logistic regression, random forest, gradient boosting, and LightGBM with monotonic constraints -- each hyperparameter-searched with patient-grouped `RandomizedSearchCV` (`GroupKFold`, so no patient's rows span a search fold) via `src.modeling.tune_model`. Candidates are ranked by mean cross-validated AUROC (AUPRC as tie-breaker); the winning configuration and its hyperparameters are recorded in `reports/model_comparison.csv` and `models/best_model_metadata.json`.
 
-The selected Random Forest configuration reported in `reports/model_comparison.csv` used:
+Before saving, the winning pipeline is wrapped in `sklearn.calibration.CalibratedClassifierCV` (sigmoid/Platt scaling, fit via the same patient-grouped folds) because raw predicted probabilities from an uncalibrated model are not necessarily trustworthy as probabilities -- see the calibration-slope/intercept discussion in Section 8. Platt scaling was chosen over isotonic regression because the effective sample size here is only ~112 patients: isotonic's non-parametric fit is prone to instability at this scale, while Platt's 2-parameter logistic fit is far more stable. `models/best_model.joblib` therefore stores the complete calibrated pipeline, not a bare estimator.
 
-- `n_estimators = 200`
-- `max_depth = 8`
-- `min_samples_leaf = 5`
-- `class_weight = None`
+### Monotonic constraints (LightGBM candidate)
+
+The LightGBM candidate is fit with monotonic constraints so it cannot learn a clinically implausible sign flip on features with strong statistical evidence of direction. Constraints are derived mechanically from the adjusted odds-ratio model in `reports/odds_ratio_results.csv` (`src.modeling.derive_monotonic_constraints`): a statistically significant (p < 0.05) positive adjusted coefficient maps to a non-decreasing constraint (+1), a significant negative coefficient maps to non-increasing (-1), and every other numeric feature -- including the 9 not covered by the adjusted model, and any feature whose adjusted coefficient was not statistically significant -- is left **unconstrained (0)** rather than guessed from textbook physiology. The full mapping is saved to `reports/monotonic_constraint_directions.csv`.
+
+| Feature | Constraint | Source | Coefficient | p-value |
+| --- | --- | --- | --- | --- |
+| `SBP` | +1 | Adjusted clinical model | 0.0428 | 5.0e-17 |
+| `HR` | -1 | Adjusted clinical model | -0.0946 | 7.9e-50 |
+| `RR` | -1 | Adjusted clinical model | -0.0905 | 7.1e-11 |
+| `SpO2` | +1 | Adjusted clinical model | 0.1315 | 5.1e-07 |
+| `Age` | -1 | Adjusted clinical model | -0.0300 | 2.7e-05 |
+| `GCS` | 0 | Adjusted clinical model (not significant) | -0.0033 | 0.744 |
+| `DBP`, `BT`, `Na`, `K`, `Cl`, `Urea`, `Ceratinine`, `pulse_pressure`, `shock_index` | 0 | Not covered by the adjusted model | -- | -- |
+
+**Important caveat:** these directions reflect each feature's statistical association with the *currently coded* `Outcome` label in this dataset -- not confirmed clinical causality. The adjusted model itself found some directions that run counter to naive clinical intuition (e.g. higher HR/RR/Age associated with *lower* odds of the coded `Outcome=1`), and Section 5 notes that the exact clinical meaning and positive-class direction of `Outcome` are not independently confirmed. **If that meaning is later clarified and found to be inverted, every constraint sign above must be flipped**, and the LightGBM candidate retrained accordingly.
 
 ## 8. Evaluation metrics
 

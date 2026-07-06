@@ -11,7 +11,9 @@ from __future__ import annotations
 from typing import Callable
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import (
     average_precision_score,
@@ -121,6 +123,130 @@ def bootstrap_ci(
         float(np.percentile(estimates, 2.5)),
         float(np.percentile(estimates, 97.5)),
     )
+
+
+def compute_calibration_slope_intercept(
+    y_true: np.ndarray, y_prob: np.ndarray
+) -> tuple[float, float]:
+    """Compute the logistic calibration intercept and slope (Cox/Steyerberg).
+
+    Fits ``y_true ~ intercept + slope * logit(y_prob)``. A well-calibrated
+    model has intercept close to 0 and slope close to 1; slope < 1 indicates
+    predictions are too extreme (overconfident), slope > 1 indicates
+    predictions are too moderate (underconfident).
+
+    Returns
+    -------
+    tuple[float, float]
+        ``(intercept, slope)``.
+    """
+    y_true = np.asarray(y_true).astype(int)
+    y_prob = np.asarray(y_prob, dtype=float)
+
+    eps = np.finfo(float).eps
+    clipped = np.clip(y_prob, eps, 1 - eps)
+    logit_scores = np.log(clipped / (1 - clipped))
+    calibration_model = sm.Logit(y_true, sm.add_constant(logit_scores)).fit(disp=False)
+    params = np.asarray(calibration_model.params)
+    calibration_intercept = float(params[0])
+    calibration_slope = float(params[1])
+    return calibration_intercept, calibration_slope
+
+
+def compute_net_benefit(
+    y_true: np.ndarray, y_prob: np.ndarray, thresholds: np.ndarray
+) -> pd.DataFrame:
+    """Compute decision-curve net benefit across a grid of threshold probabilities.
+
+    For each threshold probability ``pt``, net benefit of using the model to
+    flag ``y_prob >= pt`` as high risk is::
+
+        net_benefit_model = (tp / n) - (fp / n) * (pt / (1 - pt))
+
+    compared against two reference strategies: ``net_benefit_all`` (flag every
+    observation) and ``net_benefit_none`` (flag nothing, always 0). A model
+    strategy is only clinically useful at thresholds where its net benefit
+    exceeds both references. Thresholds ``>= 1.0`` are undefined (division by
+    zero in the odds term) and are returned as ``NaN`` rather than raised.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Columns ``["threshold", "net_benefit_model", "net_benefit_all",
+        "net_benefit_none"]``, one row per input threshold.
+    """
+    y_true = np.asarray(y_true).astype(int)
+    y_prob = np.asarray(y_prob, dtype=float)
+    thresholds = np.asarray(thresholds, dtype=float)
+    n = len(y_true)
+    prevalence = float(y_true.mean()) if n else np.nan
+
+    rows = []
+    for pt in thresholds:
+        if pt >= 1.0:
+            rows.append(
+                {
+                    "threshold": float(pt),
+                    "net_benefit_model": np.nan,
+                    "net_benefit_all": np.nan,
+                    "net_benefit_none": 0.0,
+                }
+            )
+            continue
+
+        y_pred = (y_prob >= pt).astype(int)
+        tp = int(((y_pred == 1) & (y_true == 1)).sum())
+        fp = int(((y_pred == 1) & (y_true == 0)).sum())
+        odds = pt / (1 - pt)
+
+        net_benefit_model = (tp / n) - (fp / n) * odds
+        net_benefit_all = prevalence - (1 - prevalence) * odds
+        rows.append(
+            {
+                "threshold": float(pt),
+                "net_benefit_model": net_benefit_model,
+                "net_benefit_all": net_benefit_all,
+                "net_benefit_none": 0.0,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def plot_decision_curve(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    thresholds: np.ndarray,
+    ax: plt.Axes | None = None,
+) -> plt.Axes:
+    """Plot a decision curve (net benefit vs. threshold probability).
+
+    Shows the model's net-benefit curve alongside the "treat all" and "treat
+    none" reference strategies from :func:`compute_net_benefit`.
+    """
+    if ax is None:
+        _, ax = plt.subplots(figsize=(7, 6))
+
+    net_benefit_df = compute_net_benefit(y_true, y_prob, thresholds)
+
+    ax.plot(
+        net_benefit_df["threshold"],
+        net_benefit_df["net_benefit_model"],
+        linewidth=2,
+        label="Model",
+    )
+    ax.plot(
+        net_benefit_df["threshold"],
+        net_benefit_df["net_benefit_all"],
+        linestyle="--",
+        color="gray",
+        label="Treat all",
+    )
+    ax.axhline(0.0, linestyle=":", color="black", label="Treat none")
+    ax.set_xlabel("Threshold probability")
+    ax.set_ylabel("Net benefit")
+    ax.set_title("Decision curve analysis")
+    ax.legend(loc="best")
+    return ax
 
 
 def plot_calibration_curve(
