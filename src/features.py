@@ -9,7 +9,7 @@ on training data only.
 
 from __future__ import annotations
 
-from typing import Hashable
+from collections.abc import Hashable
 
 import numpy as np
 import pandas as pd

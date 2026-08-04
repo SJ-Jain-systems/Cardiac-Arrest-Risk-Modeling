@@ -8,11 +8,11 @@ Metrics are computed from predicted probabilities (``y_prob``) and a decision
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import (
