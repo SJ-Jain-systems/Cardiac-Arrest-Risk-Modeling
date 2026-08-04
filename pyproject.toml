@@ -31,6 +31,8 @@ dev = [
     "pytest==8.3.5",
     "ruff==0.11.13",
     "black==25.1.0",
+    "pre-commit==4.2.0",
+    "nbstripout==0.7.1",
 ]
 # Optional retrieval-augmented generation (RAG) layer. Kept out of the core
 # install so the analysis stack and CI stay lean. Install with:

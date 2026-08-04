@@ -48,11 +48,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
+          pip install -e ".[rag]"
           pip install -r requirements.txt
 
+      # Runs the analysis-pipeline tests under tests/ AND the RAG suite under
+      # src/rag/. The RAG tests are offline (stub embedder + mocked Anthropic
+      # client), so no model download or ANTHROPIC_API_KEY is needed in CI.
       - name: Run pytest
-        run: pytest tests/ -v
+        run: pytest tests/ src/rag/ -v
 
   reproduce:
     name: Reproduce processed dataset
