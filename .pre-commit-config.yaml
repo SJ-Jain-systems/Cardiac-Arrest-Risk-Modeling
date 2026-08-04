@@ -1,0 +1,40 @@
+# Pre-commit hooks for the Cardiac-Arrest-Risk-Modeling repo.
+#
+# Install once:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Run against everything on demand:
+#   pre-commit run --all-files
+#
+# nbstripout keeps committed notebooks output-free (CI re-executes them, so
+# committed cell outputs are redundant and bloat diffs). ruff + black mirror
+# the CI lint job so formatting issues are caught before push.
+
+repos:
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+      - id: nbstripout
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.13
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^(src|tests)/
+
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        files: ^(src|tests)/
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: [--maxkb=1024]
