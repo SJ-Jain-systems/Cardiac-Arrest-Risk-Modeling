@@ -195,7 +195,7 @@ def _read_record(source: str) -> dict:
     text = sys.stdin.read() if source == "-" else Path(source).read_text()
     record = json.loads(text)
     if not isinstance(record, dict):
-        raise ValueError("--input JSON must be a single object of column: value")
+        raise TypeError("--input JSON must be a single object of column: value")
     return record
 
 

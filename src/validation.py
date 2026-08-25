@@ -143,8 +143,8 @@ def validate_raw_dataframe(
 
 
 __all__ = [
-    "RAW_SCHEMA",
     "INFERENCE_SCHEMA",
-    "validate_raw_dataframe",
+    "RAW_SCHEMA",
     "pa",
+    "validate_raw_dataframe",
 ]
